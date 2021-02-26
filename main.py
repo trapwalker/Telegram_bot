@@ -1,22 +1,24 @@
-import json
-import os
+
+import secret
+
 import telebot
+import paramiko  # импорт библиотеки для работы с ssh
+
+import os
 import sqlite3
-import paramiko
-# импорт библиотеки для работы с ssh
 import socket
-import time
-# импорт библ для задержки команды
+import time  # импорт библ для задержки команды
 
 
-bot = telebot.TeleBot()
-# тоекн
+bot = telebot.TeleBot(token=secret.TOKEN)
+
 
 def delete_complecs(id_number_complecs):
     try:
         conn = sqlite3.connect("VzorBelgorod.db")
         cursor = conn.cursor()
-        cursor.execute(f"""DELETE from VzorBel WHERE id_number_complecs = {id_number_complecs}
+        cursor.execute(f"""
+            DELETE from VzorBel WHERE id_number_complecs = {id_number_complecs}
         """)
         conn.commit()
     except BaseException:
