@@ -11,34 +11,37 @@ import time  # импорт библ для задержки команды
 
 
 bot = telebot.TeleBot(token=secret.TOKEN)
+DB_NAME = "VzorBelgorod.db"
 
 
 def delete_complecs(id_number_complecs):
-    try:
-        conn = sqlite3.connect("VzorBelgorod.db")
-        cursor = conn.cursor()
-        cursor.execute(f"""
-            DELETE from VzorBel WHERE id_number_complecs = {id_number_complecs}
-        """)
-        conn.commit()
-    except BaseException:
-        return "Ошибка"
+    # TODO: use single DB connection
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        DELETE from VzorBel WHERE id_number_complecs = {id_number_complecs}
+    """)
+    # TODO: use SQL parameters
+    conn.commit()
+    # TODO: catch exceptions
 
 
 def append_new(id_number_complecs, ip_912,ip_microPC,ip_cam,ip_750):
-    try:
-        conn = sqlite3.connect("VzorBelgorod.db")
-        cursor = conn.cursor()
-        cursor.execute(f"""INSERT INTO VzorBel VALUES ('{id_number_complecs}','{ip_912}','{ip_microPC}','{ip_cam}','{ip_750}')
-        """)
-        conn.commit()
-    except BaseException:
-        return "Ошибка"
+    # TODO: use single DB connection
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        INSERT INTO VzorBel 
+        VALUES ('{id_number_complecs}','{ip_912}','{ip_microPC}','{ip_cam}','{ip_750}')
+    """)
+    # TODO: use SQL parameters
+    conn.commit()
 
 
 def one_complecs(id_number_complecs):
     try:
-        conn = sqlite3.connect("VzorBelgorod.db")
+        # TODO: use single DB connection
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {id_number_complecs}")
         hostname = cursor.fetchone()
@@ -59,7 +62,8 @@ def one_complecs(id_number_complecs):
 
 def all_complecs():
     try:
-        conn = sqlite3.connect("VzorBelgorod.db")
+        # TODO: use single DB connection
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM VzorBel ")
         hostname = cursor.fetchall()
@@ -80,7 +84,8 @@ def all_complecs():
 
 
 def len_complecsov():
-    conn = sqlite3.connect("VzorBelgorod.db")
+    # TODO: use single DB connection
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM VzorBel ")
     hostname = cursor.fetchall()
@@ -89,7 +94,8 @@ def len_complecsov():
 
 def ip_complecs(id_number_complecs):
     try:
-        conn = sqlite3.connect("VzorBelgorod.db")
+        # TODO: use single DB connection
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {id_number_complecs}")
         hostname = cursor.fetchall()
@@ -101,11 +107,11 @@ def ip_complecs(id_number_complecs):
 
 def queue_complecs(ip_complecs):
     try:
-        ssh=paramiko.SSHClient()
+        ssh = paramiko.SSHClient()
         # Я создал объект ssh класса SSHClient
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         # Политика paramiko.AutoAddPolicy() автоматически добавляет новое имя хоста и ключ в локальный объект HostKeys
-        ssh.connect(f"{ip_complecs}",username="root",password="ghjnjnbgGfhjkm",timeout=7)
+        ssh.connect(f"{ip_complecs}", username="root", password="ghjnjnbgGfhjkm", timeout=7)
         print("connected")
         stdin, stdout, stderr = ssh.exec_command("ls /var/tmp/out -1 ./*.jpg | wc -l")
         time.sleep(5) # дает время на выполнение строчки выше
@@ -115,12 +121,10 @@ def queue_complecs(ip_complecs):
         return "комплекс не доступен"
 
 
-
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
     try:
         if 'Ping' in message.text:
-
             x = [i for i in message.text.split()]
             bot.send_message(message.from_user.id, one_complecs(x[1]))
 
@@ -137,7 +141,6 @@ def get_text_messages(message):
             delete_complecs(x[1])
             bot.send_message(message.from_user.id, "Удалено")
 
-
         elif "Len" in message.text:
             len = str(len_complecsov())
             bot.send_message(message.from_user.id, len)
@@ -146,38 +149,33 @@ def get_text_messages(message):
             x = [i for i in message.text.split()]
             bot.send_message(message.from_user.id, ip_complecs(x[1]))
 
-
         elif "Hellp" in message.text:
-            bot.send_message(message.from_user.id,"""
-            Delete (номер комплекса) - удаление комплекса из БД
-            Ping (номер комплекса) - узнать доступность оборудования 
-            Len - узнать количество комплексов в БД 
-            All - узнать какие из комплексов не доступны 
-            New (id_complecs   ip_912   ip_microPC   ip_cam   ip_750 ) - ввод через пробел. Добавление нового комплекса
-            Ip (номер комплекса) - Узнать все Ip комплекса
-            """)
-
+            bot.send_message(
+                message.from_user.id,
+                (
+                    "Delete (номер комплекса) - удаление комплекса из БД\n"
+                    "Ping (номер комплекса) - узнать доступность оборудования\n" 
+                    "Len - узнать количество комплексов в БД\n" 
+                    "All - узнать какие из комплексов не доступны\n" 
+                    "New (id_complecs   ip_912   ip_microPC   ip_cam   ip_750 ) - ввод через пробел. "
+                    "Добавление нового комплекса\n"
+                    "Ip (номер комплекса) - Узнать все Ip комплекса\n"
+                )
+            )
 
         elif "Queue" in message.text:
             x = message.text.split()
-            conn = sqlite3.connect("VzorBelgorod.db")
+            conn = sqlite3.connect(DB_NAME)
             cursor = conn.cursor()
             cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {x[1]}")
             hostname = cursor.fetchall()
-
             bot.send_message(message.from_user.id,queue_complecs(hostname[0][2]))
-
 
         else:
             bot.send_message(message.from_user.id,"Команда отсутствует")
-
-
-
     except BaseException:
         bot.send_message(message.from_user.id, "Ошибка")
 
 
-bot.polling(none_stop=True, interval=0)
-
-
-
+if __name__ == '__main__':
+    bot.polling(none_stop=True, interval=0)
