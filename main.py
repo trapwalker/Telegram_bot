@@ -80,9 +80,9 @@ def all_complecs():
 def len_complecsov():
     conn = sqlite3.connect("VzorBelgorod.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM VzorBel ")
+    cursor.execute("SELECT COUNT(*) FROM VzorBel ")
     hostname = cursor.fetchall()
-    return (len(hostname))
+    return hostname[0][0]
 
 
 def ip_complecs(id_number_complecs):
