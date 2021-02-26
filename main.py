@@ -9,7 +9,7 @@ import time
 # импорт библ для задержки команды
 
 
-bot = telebot.TeleBot('1652960683:AAE8wafsKolYV7Q2O3q0EZwhWwEiQTmUok0')
+bot = telebot.TeleBot()
 # тоекн
 
 def delete_complecs(id_number_complecs):
