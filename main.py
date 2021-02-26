@@ -16,7 +16,6 @@ DB_NAME = "VzorBelgorod.db"
 
 def delete_complecs(id_number_complecs):
     # TODO: use single DB connection
-    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f"""
         DELETE from VzorBel WHERE id_number_complecs = {id_number_complecs}
@@ -28,7 +27,6 @@ def delete_complecs(id_number_complecs):
 
 def append_new(id_number_complecs, ip_912,ip_microPC,ip_cam,ip_750):
     # TODO: use single DB connection
-    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute(f"""
         INSERT INTO VzorBel 
@@ -174,4 +172,6 @@ def get_text_messages(message):
 
 
 if __name__ == '__main__':
+    conn = sqlite3.connect(DB_NAME)
+
     bot.polling(none_stop=True, interval=0)
