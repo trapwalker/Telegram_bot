@@ -123,33 +123,30 @@ def queue_complecs(ip_complecs):
 
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
+    cmd, *args = message.text.split()
+    cmd = cmd.lower()
     try:
-        if 'Ping' in message.text:
-            x = [i for i in message.text.split()]
-            bot.send_message(message.from_user.id, one_complecs(x[1]))
+        if cmd == 'ping':
+            bot.send_message(message.from_user.id, one_complecs(args[0]))
 
-        elif 'All' in message.text:
+        elif cmd == 'all':
             bot.send_message(message.from_user.id, all_complecs())
 
-        elif 'New' in message.text:
-            x = [i for i in message.text.split()]
-            append_new(x[1], x[2], x[3], x[4], x[5])
+        elif cmd == 'new':
+            append_new(*args)
             bot.send_message(message.from_user.id, "Добавленно")
 
-        elif "Delete" in message.text:
-            x = [i for i in message.text.split()]
-            delete_complecs(x[1])
+        elif cmd == "delete":
+            delete_complecs(args[0])
             bot.send_message(message.from_user.id, "Удалено")
 
-        elif "Len" in message.text:
-            len = str(len_complecsov())
-            bot.send_message(message.from_user.id, len)
+        elif cmd == "len":
+            bot.send_message(message.from_user.id, str(len_complecsov()))
 
-        elif "Ip" in message.text:
-            x = [i for i in message.text.split()]
-            bot.send_message(message.from_user.id, ip_complecs(x[1]))
+        elif cmd == "ip":
+            bot.send_message(message.from_user.id, ip_complecs(args[0]))
 
-        elif "Hellp" in message.text:
+        elif cmd == "help":
             bot.send_message(
                 message.from_user.id,
                 (
@@ -163,11 +160,10 @@ def get_text_messages(message):
                 )
             )
 
-        elif "Queue" in message.text:
-            x = message.text.split()
+        elif cmd == "queue":
             conn = sqlite3.connect(DB_NAME)
             cursor = conn.cursor()
-            cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {x[1]}")
+            cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {args[0]}")
             hostname = cursor.fetchall()
             bot.send_message(message.from_user.id,queue_complecs(hostname[0][2]))
 
