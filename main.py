@@ -1,6 +1,5 @@
 
 import secret
-
 import telebot
 import paramiko  # импорт библиотеки для работы с ssh
 

@@ -1,5 +1,4 @@
 secret.py
 venv
 .idea
-tmp
-/VzorBelgorod.db
+/VzorBelgorod.*db
