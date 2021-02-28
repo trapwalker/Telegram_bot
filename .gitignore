@@ -1,4 +1,10 @@
 secret.py
 venv
 .idea
+<<<<<<< HEAD
 /VzorBelgorod.*db
+=======
+tmp
+/VzorBelgorod.db
+tmp
+>>>>>>> ab698955498ec0e90f3486ca56418e648e67bdc6

@@ -8,6 +8,7 @@ import socket
 import time  # импорт библ для задержки команды
 
 
+
 bot = telebot.TeleBot(token=secret.TOKEN)
 
 
@@ -94,14 +95,14 @@ class ComplexDriver:
 
         return f"Не работают {is_down_complecs}"
 
-    def ip_complecs(self,id_number_complecs):
+    def ip_complecs(self, id_number_complecs):
         cursor = self.db.cursor()
         cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {id_number_complecs}")
         hostname = cursor.fetchall()
         print(hostname)
         return str(hostname[0])
 
-    def queue_complecs(self,id_number_complecs):
+    def queue_complecs(self, id_number_complecs):
         cursor = self.db.cursor()
         cursor.execute(f"SELECT ip_microPC FROM VzorBel WHERE id_number_complecs = {id_number_complecs}")
         ip_microPC = cursor.fetchall()
