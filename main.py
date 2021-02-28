@@ -7,8 +7,6 @@ import sqlite3
 import socket
 import time  # импорт библ для задержки команды
 
-
-
 bot = telebot.TeleBot(token=secret.TOKEN)
 
 
@@ -63,7 +61,7 @@ class ComplexDriver:
         self.db.commit()
         return "Добавленно"
 
-    def one_complecs(self,id_number_complecs):
+    def one_complecs(self, id_number_complecs):
         cursor = self.db.cursor()
         cursor.execute(f"SELECT * FROM VzorBel WHERE id_number_complecs = {id_number_complecs}")
         hostname = cursor.fetchone()
