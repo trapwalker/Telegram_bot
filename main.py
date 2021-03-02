@@ -6,6 +6,7 @@ import os
 import sqlite3
 import socket
 import time  # импорт библ для задержки команды
+import requests
 
 bot = telebot.TeleBot(token=secret.TOKEN)
 
@@ -118,6 +119,20 @@ class ComplexDriver:
             ssh.close()
             return stdout.read()
 
+    def send_photo_complecs(self,id_number_complecs):
+        cursor = self.db.cursor()
+        cursor.execute(f"SELECT ip_cam FROM VzorBel WHERE id_number_complecs = {id_number_complecs} ")
+        ip_cam = cursor.fetchall()
+        print(ip_cam[0][0])
+        response = requests.get(f"http://{secret.LOGING_CAM}:{secret.POSsWORD_CAM}@{ip_cam[0][0]}/ISAPI/Streaming/channels/101/picture?videoResolutionWidth=1920&videoResolutionHeight=1024")
+        print(response)
+        with open('/home/evgeny/screen.png', 'rb+') as photo:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    photo.write(chunk)
+        photo_send = open('/home/evgeny/screen.png','rb')
+        return photo_send
+
 
 @bot.message_handler(commands=['start'])
 def start_bd_table(message):
@@ -125,58 +140,59 @@ def start_bd_table(message):
         bot.send_message(message.from_user.id, driver.start_sqlite())
 
 
-@bot.message_handler(content_types=['text'])
+@bot.message_handler(content_types=['text', 'photo'])
 def get_text_messages(message):
     cmd, *args = message.text.split()
     cmd = cmd.lower()
 
     with ComplexDriver() as driver:
-        try:
-            if cmd == 'ping':
-                bot.send_message(message.from_user.id, driver.one_complecs(*args))
 
-            elif cmd == 'all':
-                bot.send_message(message.from_user.id, driver.all_complecs())
+        if cmd == 'ping':
+            bot.send_message(message.from_user.id, driver.one_complecs(*args))
 
-            elif cmd == 'new':
-                if len(args) == 5:
-                    driver.append_new(*args)
-                    bot.send_message(message.from_user.id, "Добавленно")
-                else:
-                    bot.send_message(message.from_user.id, "мало данных")
+        elif cmd == "photo":
+            bot.send_photo(message.from_user.id, driver.send_photo_complecs(*args))
 
-            elif cmd == "delete":
-                driver.delete_complecs(args[0])
-                bot.send_message(message.from_user.id, "Удалено")
+        elif cmd == 'all':
+            bot.send_message(message.from_user.id, driver.all_complecs())
 
-            elif cmd == "len":
-                bot.send_message(message.from_user.id, str(driver.len_complecsov()))
-
-            elif cmd == "ip":
-                bot.send_message(message.from_user.id, driver.ip_complecs(args[0]))
-
-            elif cmd == "help":
-                bot.send_message(
-                    message.from_user.id,
-                    (
-                        "Delete (номер комплекса) - удаление комплекса из БД\n"
-                        "Ping (номер комплекса) - узнать доступность оборудования\n" 
-                        "Len - узнать количество комплексов в БД\n" 
-                        "All - узнать какие из комплексов не доступны\n" 
-                        "New (id_complecs   ip_912   ip_microPC   ip_cam   ip_750 ) - ввод через пробел. "
-                        "Добавление нового комплекса\n"
-                        "Ip (номер комплекса) - Узнать все Ip комплекса\n"
-                    )
-                )
-
-            elif cmd == "queue":
-                bot.send_message(message.from_user.id, driver.queue_complecs(*args))
-
+        elif cmd == 'new':
+            if len(args) == 5:
+                driver.append_new(*args)
+                bot.send_message(message.from_user.id, "Добавленно")
             else:
-                bot.send_message(message.from_user.id, "Команда отсутствует")
+                bot.send_message(message.from_user.id, "мало данных")
 
-        except :
-            return
+        elif cmd == "delete":
+            driver.delete_complecs(args[0])
+            bot.send_message(message.from_user.id, "Удалено")
+
+        elif cmd == "len":
+            bot.send_message(message.from_user.id, str(driver.len_complecsov()))
+
+        elif cmd == "ip":
+            bot.send_message(message.from_user.id, driver.ip_complecs(args[0]))
+
+        elif cmd == "help":
+            bot.send_message(
+                message.from_user.id,
+                (
+                    "Delete (номер комплекса) - удаление комплекса из БД\n"
+                    "Ping (номер комплекса) - узнать доступность оборудования\n" 
+                    "Len - узнать количество комплексов в БД\n" 
+                    "All - узнать какие из комплексов не доступны\n" 
+                    "New (id_complecs   ip_912   ip_microPC   ip_cam   ip_750 ) - ввод через пробел. "
+                    "Добавление нового комплекса\n"
+                    "Ip (номер комплекса) - Узнать все Ip комплекса\n"
+                )
+            )
+
+        elif cmd == "queue":
+            bot.send_message(message.from_user.id, driver.queue_complecs(*args))
+
+        else:
+            bot.send_message(message.from_user.id, "Команда отсутствует")
+
 
 
 if __name__ == '__main__':
