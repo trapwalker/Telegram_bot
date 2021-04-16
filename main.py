@@ -5,7 +5,7 @@ import paramiko  # импорт библиотеки для работы с ssh
 import os
 import sqlite3
 import socket
-import time  # импорт библ для задержки команды
+import time
 import requests
 
 bot = telebot.TeleBot(token=secret.TOKEN)
@@ -22,7 +22,6 @@ class ComplexDriver:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-
         self.close()
 
     def start_sqlite(self):
